@@ -7,7 +7,7 @@ const app = express();
 
 // ✅ Fix: Allow all origins for now (Later, restrict to specific domains)
 app.use(cors({
-    origin: "https://www.enged.com.au/",  // Allow all origins (Replace "*" with "https://yourdomain.com" in production)
+    origin: "*",  // Allow all origins (Replace "*" with "https://yourdomain.com" in production)
     methods: ["POST"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
