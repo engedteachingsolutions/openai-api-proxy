@@ -4,21 +4,32 @@ const cors = require("cors");
 const axios = require("axios");
 
 const app = express();
-app.use(cors());
-app.use(express.json()); // Ensure JSON body parsing
+
+// ✅ Fix: Allow all origins for now (Later, restrict to specific domains)
+app.use(cors({
+    origin: "*",  // Allow all origins (Replace "*" with "https://yourdomain.com" in production)
+    methods: ["POST"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
+// ✅ Add a simple GET route for debugging
+app.get("/", (req, res) => {
+    res.send("✅ OpenAI Proxy API is running!");
+});
+
+// ✅ Handle Chat Requests
 app.post("/api/chat", async (req, res) => {
     try {
-        // ✅ Validate Request Body
         if (!req.body || !req.body.messages || !Array.isArray(req.body.messages)) {
             return res.status(400).json({ error: "Missing required parameter: 'messages'." });
         }
 
         console.log("✅ Received request:", req.body);
 
-        // ✅ Send request to OpenAI API
         const response = await axios.post("https://api.openai.com/v1/chat/completions", {
             model: "gpt-4",
             messages: req.body.messages,
