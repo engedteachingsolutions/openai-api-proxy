@@ -5,17 +5,23 @@ const axios = require("axios");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Ensure JSON body parsing
 
 const PORT = process.env.PORT || 5000;
 
 app.post("/api/chat", async (req, res) => {
     try {
-        const { messages } = req.body;
+        // ✅ Validate Request Body
+        if (!req.body || !req.body.messages || !Array.isArray(req.body.messages)) {
+            return res.status(400).json({ error: "Missing required parameter: 'messages'." });
+        }
 
+        console.log("✅ Received request:", req.body);
+
+        // ✅ Send request to OpenAI API
         const response = await axios.post("https://api.openai.com/v1/chat/completions", {
             model: "gpt-4",
-            messages: messages,
+            messages: req.body.messages,
             max_tokens: 150
         }, {
             headers: {
@@ -24,6 +30,7 @@ app.post("/api/chat", async (req, res) => {
             }
         });
 
+        console.log("✅ OpenAI API Response:", response.data);
         res.json(response.data);
     } catch (error) {
         console.error("❌ OpenAI API Error:", error.response ? error.response.data : error.message);
@@ -31,7 +38,7 @@ app.post("/api/chat", async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+// ✅ Fix Port Binding for Render
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`✅ Server running on http://localhost:${PORT}`);
 });
- 
